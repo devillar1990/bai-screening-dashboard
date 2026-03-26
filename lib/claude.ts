@@ -4,20 +4,9 @@ import { ScreeningRequest, ScoringData } from './types';
 import { validateAndFix } from './validation';
 
 function getApiKey(): string {
-  // Next.js should load .env.local automatically, but as a fallback read it directly
-  let apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey || apiKey === 'your-api-key-here') {
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const envPath = path.resolve(process.cwd(), '.env.local');
-      const content = fs.readFileSync(envPath, 'utf-8');
-      const match = content.match(/^ANTHROPIC_API_KEY=(.+)$/m);
-      if (match) apiKey = match[1].trim();
-    } catch {}
-  }
-  if (!apiKey || apiKey === 'your-api-key-here') {
-    throw new Error('ANTHROPIC_API_KEY is not configured in .env.local');
+    throw new Error('ANTHROPIC_API_KEY is not configured');
   }
   return apiKey;
 }
