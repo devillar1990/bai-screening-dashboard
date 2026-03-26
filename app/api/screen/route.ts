@@ -1,0 +1,54 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
+import { runScreening } from '@/lib/claude';
+import { createJob, updateJob } from '@/lib/screening-store';
+import { ScreeningRequest } from '@/lib/types';
+
+export async function POST(request: NextRequest) {
+  try {
+    const body: ScreeningRequest = await request.json();
+
+    if (!body.companyName || !body.sector) {
+      return NextResponse.json({ error: 'Company name and sector are required' }, { status: 400 });
+    }
+
+    const id = uuidv4();
+    await createJob(id, body.companyName);
+
+    // Run screening in background (non-blocking response)
+    runScreeningAsync(id, body);
+
+    return NextResponse.json({ id, status: 'pending' });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal error' },
+      { status: 500 }
+    );
+  }
+}
+
+async function runScreeningAsync(id: string, request: ScreeningRequest) {
+  try {
+    await updateJob(id, { status: 'researching' });
+
+    const result = await runScreening(request);
+
+    // Generate folder name
+    const folderName = request.companyName
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .split(/\s+/)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join('');
+
+    result.folder = folderName;
+    result.date = new Date().toISOString().split('T')[0];
+
+    await updateJob(id, { status: 'validating' });
+    await updateJob(id, { status: 'complete', result });
+  } catch (error) {
+    await updateJob(id, {
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Screening failed',
+    });
+  }
+}

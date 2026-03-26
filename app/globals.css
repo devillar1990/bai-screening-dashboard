@@ -3,25 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0B1A2F;
+  --background-warm: #0F2240;
+  --foreground: #FFFFFF;
+  --navy: #0B1A2F;
+  --navy-100: #111D33;
+  --accent-blue: #7CB9E8;
+  --purple: #503AA8;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(124, 185, 232, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 85% 20%, rgba(80, 58, 168, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(124, 185, 232, 0.03) 0%, transparent 40%);
+  min-height: 100vh;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Score bar animations */
+@keyframes fill-bar {
+  from { width: 0; }
+}
+
+.score-bar {
+  animation: fill-bar 0.8s ease-out;
+}
+
+/* Dark select styling */
+select option {
+  background: #111D33;
+  color: #FFFFFF;
 }

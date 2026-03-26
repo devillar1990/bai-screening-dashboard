@@ -28,6 +28,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# screening jobs (local file store)
+.screening-jobs/
+
 # vercel
 .vercel
 
