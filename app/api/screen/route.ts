@@ -29,9 +29,11 @@ export async function POST(request: NextRequest) {
 
 async function runScreeningAsync(id: string, request: ScreeningRequest) {
   try {
+    console.log(`[screening:${id}] Starting research for ${request.companyName}`);
     await updateJob(id, { status: 'researching' });
 
     const result = await runScreening(request);
+    console.log(`[screening:${id}] Research complete, got result`);
 
     // Generate folder name
     const folderName = request.companyName
@@ -45,10 +47,14 @@ async function runScreeningAsync(id: string, request: ScreeningRequest) {
 
     await updateJob(id, { status: 'validating' });
     await updateJob(id, { status: 'complete', result });
+    console.log(`[screening:${id}] Complete!`);
   } catch (error) {
-    await updateJob(id, {
-      status: 'error',
-      error: error instanceof Error ? error.message : 'Screening failed',
-    });
+    const msg = error instanceof Error ? error.message : 'Screening failed';
+    console.error(`[screening:${id}] ERROR:`, msg);
+    try {
+      await updateJob(id, { status: 'error', error: msg });
+    } catch (updateErr) {
+      console.error(`[screening:${id}] Failed to update error status:`, updateErr);
+    }
   }
 }

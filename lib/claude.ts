@@ -86,6 +86,7 @@ INSTRUCTIONS:
 4. Return ONLY valid JSON matching the scoring_data.json schema. No markdown, no code blocks, just raw JSON.`;
 
   const client = getClient();
+  console.log(`[claude] Starting research for: ${request.companyName}`);
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 16000,
@@ -94,11 +95,21 @@ INSTRUCTIONS:
     messages: [{ role: 'user', content: userPrompt }],
   });
 
+  console.log(`[claude] Got response, stop_reason: ${response.stop_reason}, blocks: ${response.content.length}`);
+  for (const block of response.content) {
+    if (block.type === 'text') {
+      console.log(`[claude] Text block (${block.text.length} chars): ${block.text.substring(0, 100)}...`);
+    } else {
+      console.log(`[claude] Block type: ${block.type}`);
+    }
+  }
+
   // Extract JSON from the response, handling prose mixed with JSON
   let rawData = extractJson(response.content);
 
   // If no valid JSON found, do a follow-up turn asking for just JSON
   if (!rawData) {
+    console.log(`[claude] No JSON found in first response, sending follow-up...`);
     const followUp = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 16000,
@@ -110,10 +121,13 @@ INSTRUCTIONS:
       ],
     });
 
+    console.log(`[claude] Follow-up response, stop_reason: ${followUp.stop_reason}`);
     rawData = extractJson(followUp.content);
     if (!rawData) {
       throw new Error('Failed to extract valid JSON from Claude response after retry');
     }
+  } else {
+    console.log(`[claude] Successfully extracted JSON from first response`);
   }
 
   const validated = validateAndFix(rawData);
