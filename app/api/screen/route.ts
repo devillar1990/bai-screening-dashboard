@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { runScreening } from '@/lib/claude';
 import { createJob, updateJob } from '@/lib/screening-store';
+import { generateAndUploadReports } from '@/lib/generate-reports';
 import { ScreeningRequest } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
@@ -46,6 +47,13 @@ async function runScreeningAsync(id: string, request: ScreeningRequest) {
     result.date = new Date().toISOString().split('T')[0];
 
     await updateJob(id, { status: 'validating' });
+
+    // Generate and upload PPTX/DOCX reports
+    console.log(`[screening:${id}] Generating reports...`);
+    const reports = await generateAndUploadReports(result);
+    result.has_pptx = reports.hasPptx;
+    result.has_docx = reports.hasDocx;
+
     await updateJob(id, { status: 'complete', result });
     console.log(`[screening:${id}] Complete!`);
   } catch (error) {

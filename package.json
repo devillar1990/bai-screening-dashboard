@@ -13,8 +13,10 @@
     "@fontsource/fira-code": "^5.2.7",
     "@fontsource/manrope": "^5.2.8",
     "@supabase/supabase-js": "^2.100.1",
+    "docx": "^9.6.1",
     "lucide-react": "^1.7.0",
     "next": "14.2.35",
+    "pptxgenjs": "^4.0.1",
     "react": "^18",
     "react-dom": "^18",
     "uuid": "^13.0.0"
