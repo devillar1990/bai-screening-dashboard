@@ -1,9 +1,14 @@
 import ScreeningForm from '@/components/ScreeningForm';
 import StatsOverview from '@/components/StatsOverview';
+import { getAllCompaniesMerged, getCompanyStats } from '@/lib/companies';
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const companies = await getAllCompaniesMerged();
+  const stats = getCompanyStats(companies);
   return (
     <div className="space-y-12">
       {/* Hero */}
@@ -40,7 +45,7 @@ export default function Home() {
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
-        <StatsOverview />
+        <StatsOverview stats={stats} />
       </div>
     </div>
   );

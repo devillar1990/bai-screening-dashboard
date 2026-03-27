@@ -55,6 +55,32 @@ export async function updateJob(id: string, update: Partial<ScreeningJob>) {
   if (error) throw new Error(`Failed to update job: ${error.message}`);
 }
 
+export async function getAllCompletedScreenings(): Promise<ScoringData[]> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('screening_jobs')
+    .select('result')
+    .eq('status', 'complete')
+    .not('result', 'is', null);
+
+  if (error || !data) return [];
+  return data.map(row => row.result as ScoringData);
+}
+
+export async function getCompletedScreeningByFolder(folder: string): Promise<ScoringData | undefined> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('screening_jobs')
+    .select('result')
+    .eq('status', 'complete')
+    .filter('result->>folder', 'eq', folder)
+    .limit(1)
+    .single();
+
+  if (error || !data) return undefined;
+  return data.result as ScoringData;
+}
+
 export async function getJob(id: string): Promise<ScreeningJob | undefined> {
   const supabase = getSupabase();
 

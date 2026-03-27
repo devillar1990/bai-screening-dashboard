@@ -1,8 +1,13 @@
-import { getCompanyStats } from '@/lib/companies';
 import { Target, Eye, XCircle, BarChart3 } from 'lucide-react';
 
-export default function StatsOverview() {
-  const stats = getCompanyStats();
+interface Stats {
+  total: number;
+  pursue: number;
+  monitor: number;
+  avoid: number;
+}
+
+export default function StatsOverview({ stats }: { stats: Stats }) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

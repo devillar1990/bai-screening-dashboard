@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getCompanyByFolder, getAllCompanies } from '@/lib/companies';
+import { getCompletedScreeningByFolder } from '@/lib/screening-store';
 import MatrixBadge from '@/components/MatrixBadge';
 import ScoreCard from '@/components/ScoreCard';
 import DownloadButtons from '@/components/DownloadButtons';
@@ -7,12 +8,17 @@ import { VCBreakdown, DRBreakdown, PEBreakdown } from '@/components/ScoreBreakdo
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, AlertTriangle, Lightbulb, TrendingUp } from 'lucide-react';
 
+export const dynamicParams = true;
+
 export function generateStaticParams() {
   return getAllCompanies().map(c => ({ folder: c.folder }));
 }
 
-export default function CompanyDetail({ params }: { params: { folder: string } }) {
-  const company = getCompanyByFolder(params.folder);
+export default async function CompanyDetail({ params }: { params: { folder: string } }) {
+  let company = getCompanyByFolder(params.folder);
+  if (!company) {
+    company = await getCompletedScreeningByFolder(params.folder);
+  }
   if (!company) notFound();
 
   return (

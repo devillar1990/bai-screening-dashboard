@@ -1,9 +1,12 @@
-import { getAllCompanies } from '@/lib/companies';
+import { getAllCompaniesMerged, getCompanyStats } from '@/lib/companies';
 import StatsOverview from '@/components/StatsOverview';
 import CompanyTable from '@/components/CompanyTable';
 
-export default function Dashboard() {
-  const companies = getAllCompanies();
+export const dynamic = 'force-dynamic';
+
+export default async function Dashboard() {
+  const companies = await getAllCompaniesMerged();
+  const stats = getCompanyStats(companies);
 
   return (
     <div className="space-y-8">
@@ -12,7 +15,7 @@ export default function Dashboard() {
         <p className="text-white/50 mt-1">Browse all screened companies with scores and classifications.</p>
       </div>
 
-      <StatsOverview />
+      <StatsOverview stats={stats} />
       <CompanyTable companies={companies} />
     </div>
   );
