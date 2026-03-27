@@ -30,7 +30,7 @@ export default function ResultsPage() {
 
     const poll = setInterval(async () => {
       try {
-        const res = await fetch(`/api/screen/${id}/status`);
+        const res = await fetch(`/api/screen/${id}/status?_t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         setStatus(data.status);
         setCompanyName(data.companyName || '');
@@ -42,8 +42,8 @@ export default function ResultsPage() {
           setError(data.error || 'Unknown error');
           clearInterval(poll);
         }
-      } catch {
-        // Keep polling
+      } catch (err) {
+        console.error('[polling] Error:', err);
       }
     }, 2000);
 
