@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getJob } from '@/lib/screening-store';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
@@ -17,5 +19,7 @@ export async function GET(
     status: job.status,
     result: job.status === 'complete' ? job.result : undefined,
     error: job.error,
+  }, {
+    headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
   });
 }

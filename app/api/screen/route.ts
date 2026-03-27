@@ -5,6 +5,8 @@ import { createJob, updateJob } from '@/lib/screening-store';
 import { generateAndUploadReports } from '@/lib/generate-reports';
 import { ScreeningRequest } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body: ScreeningRequest = await request.json();
